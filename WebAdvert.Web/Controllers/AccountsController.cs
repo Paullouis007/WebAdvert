@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebAdvert.Web.Models.Accounts;
 using Amazon.AspNetCore.Identity.Cognito;
 using Amazon.Runtime.Internal.Transform;
+using System.Threading;
 
 namespace WebAdvert.Web.Controllers
 {
@@ -102,6 +103,15 @@ namespace WebAdvert.Web.Controllers
             {
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
+                //var user = await _userManager.FindByEmailAsync(model.Email);
+                ////var code = await _userManager.GenerateTwoFactorTokenAsync(user,"");
+                //var isValid = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+                //if(isValid.Succeeded)
+                //{
+                //    var result = await _signInManager.sig(user);
+                //    return RedirectToAction("Index", "Home");
+                //}
                 if (result.Succeeded)
                     return RedirectToAction("Index", "Home");
 
@@ -113,79 +123,56 @@ namespace WebAdvert.Web.Controllers
             return View(model);
         }
 
-        //// GET: Accounts/Details/5
-        //public ActionResult Details(int id)
-        //{
-        //    return View();
-        //}
+        public async Task<IActionResult> ForgotPassword()
+        {
+            return View();
+        }
 
-        //// GET: Accounts/Create
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPassword model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError("Not Found", "User with email doesn't exist");
+                    return View(model);
+                }
+                await user.ForgotPasswordAsync();
+                return RedirectToAction(nameof(ConfirmForgotPassword));
+            }
+            return View(model);
+        }
 
-        //// POST: Accounts/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create(IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add insert logic here
+        public async Task<IActionResult> ConfirmForgotPassword()
+        {
+            return View();
+        }
 
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+        [HttpPost]
+        public async Task<IActionResult> ConfirmForgotPassword(ConfirmForgotPassword model)
+        {
+            if(ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError("Not Found", "User with email doesn't exist");
+                    return View(model);
+                }
+                await user.ConfirmForgotPasswordAsync(model.Code, model.Password);
+                //await _pool.ConfirmForgotPassword(model.Email, model.Code, model.Password, default(CancellationToken));
 
-        //// GET: Accounts/Edit/5
-        //public ActionResult Edit(int id)
-        //{
-        //    return View();
-        //}
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            return View(model);
+        }
 
-        //// POST: Accounts/Edit/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add update logic here
-
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
-
-        //// GET: Accounts/Delete/5
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
-
-        //// POST: Accounts/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add delete logic here
-
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+        public async Task<IActionResult> Signout()
+        {
+            if (User.Identity.IsAuthenticated) await _signInManager.SignOutAsync().ConfigureAwait(false);
+            return RedirectToAction("Login");
+        }
     }
 }

@@ -5,8 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AdvertApi.Models" Version="1.3.0" />
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="0.9.0.11" />
     <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.32.2" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.31.24" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
