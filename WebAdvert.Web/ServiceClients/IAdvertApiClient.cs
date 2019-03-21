@@ -8,6 +8,7 @@ namespace WebAdvert.Web.ServiceClients
 {
     public interface IAdvertApiClient
     {
-        Task<CreateAdvertResponse> Create(AdvertModel model);
+        Task<AdvertResponse> CreateAsync(CreateAdvertModel model);
+        Task<bool> ConfirmAsync(ConfirmAdvertRequest model);
     }
 }

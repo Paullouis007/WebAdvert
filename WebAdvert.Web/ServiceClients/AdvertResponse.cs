@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebAdvert.Web.ServiceClients
 {
-    public class CreateAdvertResponse
+    public class AdvertResponse
     {
         public string Id { get; set; }
     }
