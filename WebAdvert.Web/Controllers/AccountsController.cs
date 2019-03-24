@@ -113,7 +113,7 @@ namespace WebAdvert.Web.Controllers
                 //    return RedirectToAction("Index", "Home");
                 //}
                 if (result.Succeeded)
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Create", "AdvertManagement");
 
                 else
                 {

@@ -23,10 +23,20 @@ namespace WebAdvert.Web.ServiceClients
             _client = client;
             _mapper = mapper;
 
-            //_baseAddress = configuration.GetSection("AdvertApi").GetValue<string>("BaseUrl");
-            var createUrl = configuration.GetSection("AdvertApi").GetValue<string>("CreateUrl");
-            _client.BaseAddress = new Uri(createUrl);
-            _client.DefaultRequestHeaders.Add("Content-type", "application/json");
+            _baseAddress = configuration.GetSection("AdvertApi").GetValue<string>("BaseUrl");
+        }
+
+        public async Task<AdvertResponse> CreateAsync(CreateAdvertModel model)
+        {
+            var advertApiModel = _mapper.Map<AdvertModel>(model);
+
+            var jsonModel = JsonConvert.SerializeObject(advertApiModel);
+            var response = await _client.PostAsync(new Uri($"{_baseAddress}/create"),
+                new StringContent(jsonModel, Encoding.UTF8, "application/json")).ConfigureAwait(false);
+            var createAdvertResponse = await response.Content.ReadAsAsync<CreateAdvertResponse>().ConfigureAwait(false);
+            var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
+
+            return advertResponse;
         }
 
         public async Task<bool> ConfirmAsync(ConfirmAdvertRequest model)
@@ -37,22 +47,21 @@ namespace WebAdvert.Web.ServiceClients
                 .PutAsync(new Uri($"{_baseAddress}/confirm"),
                     new StringContent(jsonModel, Encoding.UTF8, "application/json"))
                 .ConfigureAwait(false);
-
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public async Task<AdvertResponse> CreateAsync(CreateAdvertModel model)
-        {
-            var advertApiModel = _mapper.Map<AdvertModel>(model);
+        //public async Task<List<Advertisement>> GetAllAsync()
+        //{
+        //    var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/all")).ConfigureAwait(false);
+        //    var allAdvertModels = await apiCallResponse.Content.ReadAsAsync<List<AdvertModel>>().ConfigureAwait(false);
+        //    return allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
+        //}
 
-            var jsonModel = JsonConvert.SerializeObject(advertApiModel);
-            var response = await _client.PostAsync(new Uri($"{_baseAddress}/create"),
-             new StringContent(jsonModel, Encoding.UTF8, "application/json")).ConfigureAwait(false);
-
-            var createAdvertResponse = await response.Content.ReadAsAsync<CreateAdvertResponse>().ConfigureAwait(false);
-            var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
-
-            return advertResponse;
-        }
+        //public async Task<Advertisement> GetAsync(string advertId)
+        //{
+        //    var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/{advertId}")).ConfigureAwait(false);
+        //    var fullAdvert = await apiCallResponse.Content.ReadAsAsync<AdvertModel>().ConfigureAwait(false);
+        //    return _mapper.Map<Advertisement>(fullAdvert);
+        //}
     }
 }
