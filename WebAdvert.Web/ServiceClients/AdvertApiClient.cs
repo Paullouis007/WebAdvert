@@ -50,18 +50,18 @@ namespace WebAdvert.Web.ServiceClients
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        //public async Task<List<Advertisement>> GetAllAsync()
-        //{
-        //    var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/all")).ConfigureAwait(false);
-        //    var allAdvertModels = await apiCallResponse.Content.ReadAsAsync<List<AdvertModel>>().ConfigureAwait(false);
-        //    return allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
-        //}
+        public async Task<List<Advertisement>> GetAllAsync()
+        {
+            var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/all")).ConfigureAwait(false);
+            var allAdvertModels = await apiCallResponse.Content.ReadAsAsync<List<AdvertModel>>().ConfigureAwait(false);
+            return allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
+        }
 
-        //public async Task<Advertisement> GetAsync(string advertId)
-        //{
-        //    var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/{advertId}")).ConfigureAwait(false);
-        //    var fullAdvert = await apiCallResponse.Content.ReadAsAsync<AdvertModel>().ConfigureAwait(false);
-        //    return _mapper.Map<Advertisement>(fullAdvert);
-        //}
+        public async Task<Advertisement> GetAsync(string advertId)
+        {
+            var apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/{advertId}")).ConfigureAwait(false);
+            var fullAdvert = await apiCallResponse.Content.ReadAsAsync<AdvertModel>().ConfigureAwait(false);
+            return _mapper.Map<Advertisement>(fullAdvert);
+        }
     }
 }

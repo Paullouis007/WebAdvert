@@ -4,37 +4,52 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.AspNetCore.Identity.Cognito;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebAdvert.Web.Models;
+using WebAdvert.Web.Models.Home;
+using WebAdvert.Web.ServiceClients;
 
 namespace WebAdvert.Web.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        public ISearchApiClient SearchApiClient { get; }
+        public IMapper Mapper { get; }
+        public IAdvertApiClient ApiClient { get; }
+
+        public HomeController(ISearchApiClient searchApiClient, IMapper mapper, IAdvertApiClient apiClient)
         {
-            return View();
+            SearchApiClient = searchApiClient;
+            Mapper = mapper;
+            ApiClient = apiClient;
         }
 
-        public IActionResult About()
+        [Authorize]
+        [ResponseCache(Duration = 60)]
+        public async Task<IActionResult> Index()
         {
-            ViewData["Message"] = "Your application description page.";
+            var allAds = await ApiClient.GetAllAsync().ConfigureAwait(false);
+            var allViewModels = allAds.Select(x => Mapper.Map<IndexViewModel>(x));
 
-            return View();
+            return View(allViewModels);
         }
 
-        public IActionResult Contact()
+        [HttpPost]
+        public async Task<IActionResult> Search(string keyword)
         {
-            ViewData["Message"] = "Your contact page.";
+            var viewModel = new List<SearchViewModel>();
 
-            return View();
-        }
+            var searchResult = await SearchApiClient.Search(keyword).ConfigureAwait(false);
+            searchResult.ForEach(advertDoc =>
+            {
+                var viewModelItem = Mapper.Map<SearchViewModel>(advertDoc);
+                viewModel.Add(viewModelItem);
+            });
 
-        public IActionResult Privacy()
-        {
-            return View();
+            return View("Search", viewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
